@@ -1,0 +1,14 @@
+#!/bin/bash
+# Example custom scanning script using sysinsight
+
+# Scan multiple directories
+echo "Scanning system directories..."
+sysinsight -d /home -n 8
+sysinsight -d /var -n 5
+sysinsight -d /opt -n 3
+
+# Generate HTML report (requires additional tools)
+sysinsight | ansi2html > system-report.html
+
+# Monitor specific user
+sysinsight -d /home/username -n 10

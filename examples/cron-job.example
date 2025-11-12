@@ -1,0 +1,9 @@
+# Example crontab entry for daily system reports
+# Run every day at 6:00 AM and save to log file
+0 6 * * * /usr/local/bin/sysinsight >> /var/log/sysinsight.log 2>&1
+
+# Weekly report with email notification
+0 9 * * 1 /usr/local/bin/sysinsight -d / -n 15 | mail -s "Weekly System Report" admin@company.com
+
+# Monitor specific directory every hour
+0 * * * * /usr/local/bin/sysinsight -d /var/log -n 5 >> /var/log/storage-monitor.log
