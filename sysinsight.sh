@@ -2,7 +2,7 @@
 
 # System Insight - Comprehensive Storage and Memory Analysis Tool
 # Version: 1.0.0
-# Author: Your Name
+# Author: Sujan
 # License: MIT
 
 # Configuration
@@ -24,9 +24,7 @@ NC='\033[0m'
 
 # Default configuration
 SCAN_DIR="${DEFAULT_SCAN_DIR:-/home}"
-TOP_N="${DEFAULT_TOP_N:-10}"
 MAX_DEPTH="${DEFAULT_MAX_DEPTH:-2}"
-SHOW_WARNINGS="${SHOW_WARNINGS:-true}"
 
 print_header() {
     echo -e "\n${CYAN}===============================================${NC}"
@@ -34,34 +32,48 @@ print_header() {
     echo -e "${CYAN}===============================================${NC}"
 }
 
-# [Rest of the functions from previous code...]
-# check_disk_space(), check_memory_usage(), find_large_directories(), etc.
+check_disk_space() {
+    print_header "Disk Usage Summary"
+    df -h --total | awk '{print $1"\t"$2"\t"$3"\t"$4"\t"$5"\t"$6}'
+}
+
+check_memory_usage() {
+    print_header "Memory Usage Summary"
+    free -h
+}
+
+find_large_directories() {
+    print_header "Largest Directories in $SCAN_DIR"
+    du -h --max-depth=$MAX_DEPTH "$SCAN_DIR" 2>/dev/null | sort -hr | head -n 15
+}
+
+find_large_files() {
+    print_header "Largest Files in $SCAN_DIR"
+    find "$SCAN_DIR" -type f -exec du -h {} + 2>/dev/null | sort -hr | head -n 15
+}
+
+generate_summary() {
+    print_header "Overall System Summary"
+    echo -e "${YELLOW}Top Processes by Memory:${NC}"
+    ps aux --sort=-%mem | head -n 10
+}
 
 main() {
     echo -e "${PURPLE}"
-    echo "   _____ _           _   _       _     _   "
-    echo "  / ____| |         | | (_)     | |   (_)  "
-    echo " | (___ | |_ _   _  | |_ _ _ __ | |__  _   "
-    echo "  \___ \| __| | | | | __| | '_ \| '_ \| |  "
-    echo "  ____) | |_| |_| | | |_| | |_) | | | | |  "
-    echo " |_____/ \__|\__, |  \__|_| .__/|_| |_|_|  "
-    echo "              __/ |       | |              "
-    echo "             |___/        |_|              "
+    echo "  ╔══════════════════════════════════════════════╗"
+    echo "  ║          SYSTEM INSIGHT AUDIT REPORT         ║"
+    echo "  ║     Storage and Memory Analyzer v$VERSION       ║"
+    echo "  ╚══════════════════════════════════════════════╝"
     echo -e "${NC}"
-    
-    echo -e "System Storage and Memory Analysis Tool v$VERSION"
+
     echo -e "Generated on: $(date)"
     echo -e "Hostname: $(hostname)\n"
-    
+
     check_disk_space
     check_memory_usage
-    find_large_directories "$SCAN_DIR" "$MAX_DEPTH" "$TOP_N"
-    find_large_files "$SCAN_DIR" "$TOP_N"
+    find_large_directories "$SCAN_DIR" "$MAX_DEPTH"
+    find_large_files "$SCAN_DIR"
     generate_summary
 }
 
-# [Include all other functions from previous implementation]
-# [Argument parsing, help function, etc.]
-
-# Run main function with error handling
 main "$@"
